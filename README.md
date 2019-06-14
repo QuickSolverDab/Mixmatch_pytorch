@@ -17,6 +17,7 @@ This code is pytorch version of the work introduced from ["MixMatch- A Holistic 
 
 ### Informantion
 This code does not support multi-gpu process but It will be supported soon.
+When you run the code, ckpt, logs, and summary file will be saved in ckpt folder.
 
 ### Code reference
 - https://github.com/pytorch/examples/tree/master/imagenet
