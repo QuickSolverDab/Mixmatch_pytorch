@@ -69,8 +69,10 @@ def network_train(train_loader_l, train_loader_u, model,
         # Algorithm 1. shuffle in line 12 and mixup in line 13, 14
         mixed_input, mixed_target = mixmatch_data(input, target)
 
-        # Following parts are not introduced in paper but in
-        # interleave labeled and unlabed samples between batches to get correct batchnorm calculation
+        # Following parts are not introduced in paper but in official code
+        # Refered from https://github.com/YU1ut/MixMatch-pytorch
+        # interleave labeled and unlabed samples between batches
+        # to get correct batchnorm calculation
         mixed_input = list(torch.split(mixed_input, batch_size))
         mixed_input = interleave(mixed_input, batch_size, args.K)
         logits = [model(mixed_input[0])]
