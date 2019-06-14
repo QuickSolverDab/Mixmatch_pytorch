@@ -7,7 +7,7 @@ This code is pytorch version of the work introduced from ["MixMatch- A Holistic 
 * torchvision 0.2.2
 * tqdm
 * numpy
-##### optional
+- optional for visualizing and summary network
 * tensorboardX
 * tensorflow 1.12.0
 * torchsummary
