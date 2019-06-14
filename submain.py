@@ -151,22 +151,3 @@ def validate(val_loader, model, args):
         print(' *** Acc@1 {top1.avg:.3f} Acc@5 {top5.avg:.3f}'
                             .format(top1=top1, top5=top5))
     return top1.avg
-
-
-def interleave_offsets(batch, K):
-    groups = [batch // K] * K
-    for x in range(batch - sum(groups)):
-        groups[-x - 1] += 1
-    offsets = [0]
-    for g in groups:
-        offsets.append(offsets[-1] + g)
-    assert offsets[-1] == batch
-    return offsets
-
-def interleave(inputs, batch, K):
-    K = K + 1
-    offsets = interleave_offsets(batch, K)
-    inputs = [[v[offsets[p]:offsets[p + 1]] for p in range(K)] for v in inputs]
-    for i in range(1, K):
-        inputs[0][i], inputs[i][i] = inputs[i][i], inputs[0][i]
-    return [torch.cat(v, dim=0) for v in inputs]
