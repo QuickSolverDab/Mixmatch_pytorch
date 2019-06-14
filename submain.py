@@ -64,24 +64,27 @@ def network_train(train_loader_l, train_loader_u, model,
         input = torch.cat((input_l, input_u), dim=0)
         target_l_onehot = idx2onehot(target_l, args.num_classes, args)
         target = torch.cat([target_l_onehot, sharpened_guess, sharpened_guess], dim=0)
-        output = model(input)
+
 
         # Algorithm 1. shuffle in line 12 and mixup in line 13, 14
-        mixed_output, mixed_target = mixmatch_data(output, target)
-        method = 1
-        if method == 0:
-            ## Method presented in paper
-            loss = mixmatch_criterion(mixed_output[:batch_size], mixed_output[batch_size:],
-                                      mixed_target[:batch_size], mixed_target[batch_size:],
-                                      args)
-        else:
-            ## Method presented in official Code
-            perm_idx = permuted_idx(batch_size, args.K).cuda(args.gpu)
-            mixed_output = mixed_output[perm_idx]
-            mixed_target = mixed_target[perm_idx]
-            loss = mixmatch_criterion(mixed_output[:batch_size], mixed_output[batch_size:],
-                                      mixed_target[:batch_size], mixed_target[batch_size:],
-                                      args)
+        mixed_input, mixed_target = mixmatch_data(input, target)
+
+        # Following parts are not introduced in paper but in
+        # interleave labeled and unlabed samples between batches to get correct batchnorm calculation
+        mixed_input = list(torch.split(mixed_input, batch_size))
+        mixed_input = interleave(mixed_input, batch_size, args.K)
+        logits = [model(mixed_input[0])]
+        for input in mixed_input[1:]:
+            logits.append(model(input))
+
+        # put interleaved samples back
+        logits = interleave(logits, batch_size, args.K)
+        logits_x = logits[0]
+        logits_u = torch.cat(logits[1:], dim=0)
+
+        loss = mixmatch_criterion(logits_x , logits_u,
+                                  mixed_target[:batch_size], mixed_target[batch_size:],
+                                  args)
 
         # measure accuracy and record loss
         # only labeled dataset
@@ -162,3 +165,22 @@ def validate(val_loader, model, args):
         print(' *** Acc@1 {top1.avg:.3f} Acc@5 {top5.avg:.3f}'
                             .format(top1=top1, top5=top5))
     return top1.avg
+
+
+def interleave_offsets(batch, K):
+    groups = [batch // K] * K
+    for x in range(batch - sum(groups)):
+        groups[-x - 1] += 1
+    offsets = [0]
+    for g in groups:
+        offsets.append(offsets[-1] + g)
+    assert offsets[-1] == batch
+    return offsets
+
+def interleave(inputs, batch, K):
+    K = K + 1
+    offsets = interleave_offsets(batch, K)
+    inputs = [[v[offsets[p]:offsets[p + 1]] for p in range(K)] for v in inputs]
+    for i in range(1, K):
+        inputs[0][i], inputs[i][i] = inputs[i][i], inputs[0][i]
+    return [torch.cat(v, dim=0) for v in inputs]

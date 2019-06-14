@@ -157,15 +157,3 @@ def cross_entropy(input, target):
     """ Cross entropy for one-hot labels
     """
     return -torch.mean(torch.sum(target * F.log_softmax(input), dim=1))
-
-def permuted_idx(batch_size, K):
-    """ index for permutation
-        
-    """
-    idx_l = torch.randperm(batch_size)
-    idx_u = torch.randperm(batch_size*K) + batch_size
-    # mix with specific portion
-    mix_len = batch_size - (batch_size // K) + 1
-    idx = torch.cat((idx_u[:mix_len], idx_l[mix_len:], idx_l[:mix_len], idx_u[mix_len:]), dim=-1)
-    per = torch.cat((idx_l,idx_u), dim = -1)
-    return idx[per]
