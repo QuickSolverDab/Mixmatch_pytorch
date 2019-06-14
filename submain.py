@@ -65,26 +65,10 @@ def network_train(train_loader_l, train_loader_u, model,
         target_l_onehot = idx2onehot(target_l, args.num_classes, args)
         target = torch.cat([target_l_onehot, sharpened_guess, sharpened_guess], dim=0)
 
-
         # Algorithm 1. shuffle in line 12 and mixup in line 13, 14
         mixed_input, mixed_target = mixmatch_data(input, target)
-
-        # Following parts are not introduced in paper but in official code
-        # Refered from https://github.com/YU1ut/MixMatch-pytorch
-        # interleave labeled and unlabed samples between batches
-        # to get correct batchnorm calculation
-        mixed_input = list(torch.split(mixed_input, batch_size))
-        mixed_input = interleave(mixed_input, batch_size, args.K)
-        logits = [model(mixed_input[0])]
-        for input in mixed_input[1:]:
-            logits.append(model(input))
-
-        # put interleaved samples back
-        logits = interleave(logits, batch_size, args.K)
-        logits_x = logits[0]
-        logits_u = torch.cat(logits[1:], dim=0)
-
-        loss = mixmatch_criterion(logits_x , logits_u,
+        mixed_output = model(mixed_input)
+        loss = mixmatch_criterion(mixed_output[:batch_size] , mixed_output[batch_size:],
                                   mixed_target[:batch_size], mixed_target[batch_size:],
                                   args)
 
