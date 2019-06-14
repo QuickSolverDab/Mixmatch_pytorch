@@ -8,9 +8,9 @@ This code is pytorch version of the work introduced from ["MixMatch- A Holistic 
 * tqdm
 * numpy
 - optional for visualizing and summary network
-* tensorboardX
-* tensorflow 1.12.0
-* torchsummary
+  * tensorboardX
+  * tensorflow 1.12.0
+  * torchsummary
 
 ### Running
   python main.py --gpu <gpu_id> --dataset <dataset name> --network <network name> --data_dir <data_directory>
