@@ -13,7 +13,7 @@ This code is pytorch version of the work introduced from ["MixMatch- A Holistic 
   * torchsummary
 
 ### Running
-  python main.py --gpu <gpu_id> --dataset <dataset name> --network <network name> --data_dir <data_directory>
+    python main.py --gpu <gpu_id> --dataset <dataset name> --network <network name> --data_dir <data_directory>
 
 ### Informantion
 This code does not support multi-gpu process but It will be supported soon.
