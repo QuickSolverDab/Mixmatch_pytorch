@@ -48,8 +48,7 @@ parser.add_argument('--network', default='wideResNet28_2',
                             'resnet18', 'resnet34', 'resnet50', 'resnet101', 'resnet152', 'resnet200',
                             'preresnet56', 'preresnet101', 'preresnet110',
                             'wideResNet28_10', 'wideResNet28_4','wideResNet28_2',
-                            'wideResNet16_10', 'wideResNet16_4','wideResNet16_2',
-                            'pyramidnet200',],
+                            'wideResNet16_10', 'wideResNet16_4','wideResNet16_2',],
                     type=str, help='name of dataset') # required=True,
 parser.add_argument('--dataset', default='cifar10',
                     choices=['cifar10', 'cifar100', 'ImageNet'],
@@ -69,8 +68,8 @@ parser.add_argument('--num_labeled_per_classes', default=250, type=int,
                          '(default: 250)')
 parser.add_argument('--lr', '--learning_rate', default=0.002, type=float,
                     metavar='LR', help='initial learning rate', dest='lr')
-parser.add_argument('--print_test_freq', default=5, type=int,
-                    metavar='N', help='print test frequency (default: per 5 epoch)')
+parser.add_argument('--print_test_freq', default=2, type=int,
+                    metavar='N', help='print test frequency (default: per 2 epoch)')
 parser.add_argument('--resume', default='./best_ckpt/model_best.pth.tar',
                     type=str, metavar='PATH',
                     help='path to latest checkpoint (default: none)')
